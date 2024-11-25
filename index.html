@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QR Code Reader</title>
+    <link rel="stylesheet" href="style.css">
+    <script
+      src="https://unpkg.com/html5-qrcode"
+      type="text/javascript"
+    ></script>
+  </head>
+  <body>
+    <h1>QR Code Reader</h1>
+    <div class="row">
+      <button id="startButton" class="button" onclick="startScanning()">
+        Start Scanning
+      </button>
+      <div id="reader" style="display: none"></div>
+      <button
+        id="scanAgainButton"
+        class="button"
+        style="display: none"
+        onclick="scanAgain()"
+      >
+        Scan Again
+      </button>
+
+      <div id="result" class="result" style="margin-top: 20px; display: none">
+        Result goes here
+      </div>
+    </div>
+
+    <script>
+      let scanner;
+
+      function startScanning() {
+        // Hide the start button and show the scanner div
+        document.getElementById("startButton").style.display = "none";
+        document.getElementById("reader").style.display = "block";
+
+        scanner = new Html5Qrcode("reader");
+
+        // Request back camera (environment mode)
+        scanner
+          .start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            onScanSuccess,
+            onScanError
+          )
+          .catch((err) => {
+            console.error("Error starting the scanner:", err);
+            alert("Unable to access camera. Please check permissions.");
+          });
+      }
+
+      function onScanSuccess(qrCodeMessage) {
+        document.getElementById(
+          "result"
+        ).innerHTML = `<a href="${qrCodeMessage}" target="_blank">${qrCodeMessage}</a>`;
+        document.getElementById("result").style.display = "block";
+        scanner.stop();
+        document.getElementById("scanAgainButton").style.display = "block";
+      }
+
+      function onScanError(errorMessage) {
+        console.warn("QR Code scanning error:", errorMessage);
+      }
+
+      function scanAgain() {
+        document.getElementById("result").style.display = "none";
+        document.getElementById("scanAgainButton").style.display = "none";
+        startScanning();
+      }
+    </script>
+  </body>
+</html>
